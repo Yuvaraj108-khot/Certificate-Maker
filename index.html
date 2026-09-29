@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bulk Certificate Generator - Studio</title>
+  <meta name="description" content="Generate hundreds of personalized certificates from any Canva template in one click. 100% in-browser, secure, and instant." />
+
+  <!-- Preconnect Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- Google Fonts Library (Calligraphy, Serifs, Clean Sans, Gothic/Diploma) -->
+  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Allura&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Cabin:wght@400;500;600;700&family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Serif+Display&family=Dancing+Script:wght@400;600;700&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Figtree:wght@400;500;600;700;800&family=Great+Vibes&family=Inter:wght@400;500;600;700;800;900&family=Italianno&family=Lato:wght@400;700;900&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400..700;1,400..700&family=Marcellus&family=Marck+Script&family=MedievalSharp&family=Merriweather:wght@400;700;900&family=Montez&family=Montserrat:ital,wght@0,400..900;1,400..900&family=Nunito:wght@400;600;700;800&family=Oswald:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Parisienne&family=Pinyon+Script&family=Playfair+Display+SC:wght@400;700;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=Prata&family=Raleway:wght@400;500;600;700;800&family=Rochester&family=Rouge+Script&family=Sacramento&family=Satisfy&family=Spectral:wght@400;600;700;800&family=Syne:wght@400;600;700;800&family=Tangerine:wght@400;700&family=UnifrakturMaguntia&display=swap" rel="stylesheet" />
+
+  <!-- External CDN Libraries (cdnjs only) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- External Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- Top Studio Header -->
+  <header>
+    <div class="nav-container">
+      <div class="brand-group">
+        <div class="brand-logo-icon">⚡</div>
+        <div class="brand-meta">
+          <div class="brand-name">
+            Bulk Certificate Studio
+            <span class="brand-pill">Private & Client-Side</span>
+          </div>
+          <div class="brand-tagline">Upload your Canva template & export all certificates in one click</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dashboard -->
+  <main>
+    <!-- Mobile View Switcher (Visible only on tablets & mobile screens <= 992px) -->
+    <div class="mobile-nav-bar" id="mobileNavBar">
+      <button type="button" class="mobile-tab-btn active" id="mobTabControls" data-tab="controls">
+        <span class="tab-icon">⚙️</span>
+        <span class="tab-label">Editor Controls</span>
+      </button>
+      <button type="button" class="mobile-tab-btn" id="mobTabPreview" data-tab="preview">
+        <span class="tab-icon">👁️</span>
+        <span class="tab-label">Live Certificate</span>
+        <span class="mob-counter-pill" id="mobRecipientBadge">1 / 1</span>
+      </button>
+    </div>
+
+    <div class="studio-grid" id="studioGrid" data-mobile-view="controls">
+      
+      <!-- Left Column: Step-by-Step Configuration -->
+      <div class="sidebar-panel">
+        
+        <!-- STEP 1: UPLOAD TEMPLATE -->
+        <section class="step-box active-step" id="stepBoxTemplate">
+          <div class="step-head">
+            <div class="step-badge">1</div>
+            <div class="step-title-block">
+              <h2 class="step-heading">Your Certificate Template</h2>
+              <p class="step-desc">Upload your custom Canva export (PNG / JPG / WEBP)</p>
+            </div>
+          </div>
+
+          <div class="dropzone" id="templateDropzone" tabindex="0" role="button" aria-label="Upload template image">
+            <input type="file" id="templateInput" accept="image/png, image/jpeg, image/webp" />
+            <div class="dropzone-icon">🖼️</div>
+            <div class="dropzone-title" id="dropzoneText">Click or Drop Template Here</div>
+            <div class="dropzone-sub">Upload your event certificate exported from Canva</div>
+          </div>
+
+          <!-- Active Template Metadata Display -->
+          <div id="templateActiveCard" class="template-active-card" style="display: none;">
+            <div class="template-info-text">
+              <span class="template-file-name" id="activeFileName">template.png</span>
+              <span class="template-res-badge" id="activeDimensions">0 × 0 px</span>
+            </div>
+            <button id="removeTemplateBtn" class="btn btn-danger-ghost" type="button" title="Remove template">
+              ✕ Remove
+            </button>
+          </div>
+
+          <!-- Canva Link Helper -->
+          <div style="margin-top: 0.85rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9;">
+            <div class="field-label">
+              <span>Canva Design Link</span>
+              <span class="field-hint">Quick access</span>
+            </div>
+            <div style="display: flex; gap: 0.4rem;">
+              <input type="url" id="canvaLinkInput" class="input-text" placeholder="https://www.canva.com/design/..." />
+              <button id="openCanvaBtn" class="btn btn-secondary btn-sm" type="button">↗ Open</button>
+            </div>
+            <div style="font-size: 0.74rem; color: #64748b; margin-top: 0.35rem; line-height: 1.4;">
+              💡 <em>In Canva: Click <strong>Share → Download → PNG</strong>, then upload that downloaded image above.</em>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 2: RECIPIENT NAMES -->
+        <section class="step-box" id="stepBoxNames">
+          <div class="step-head">
+            <div class="step-badge">2</div>
+            <div class="step-title-block">
+              <h2 class="step-heading">Recipient Names</h2>
+              <p class="step-desc">Upload Excel/CSV or paste manual names</p>
+            </div>
+            <button id="loadSampleNamesBtn" class="btn btn-secondary btn-sm" type="button" title="Load sample student names">
+              Sample List
+            </button>
+          </div>
+
+          <!-- Tab Controls -->
+          <div class="tab-pills" role="tablist">
+            <button id="tabExcelBtn" class="tab-pill-btn active" type="button">📊 Excel / CSV</button>
+            <button id="tabManualBtn" class="tab-pill-btn" type="button">✍️ Manual Entry</button>
+          </div>
+
+          <!-- Tab 1: Excel / CSV Upload -->
+          <div id="tabExcelContent">
+            <div class="dropzone" id="excelDropzone" tabindex="0" role="button" aria-label="Upload Excel or CSV file">
+              <input type="file" id="excelInput" accept=".xlsx, .xls, .csv" />
+              <div class="dropzone-icon">📑</div>
+              <div class="dropzone-title" id="excelDropText">Drop .xlsx, .xls, or .csv</div>
+              <div class="dropzone-sub">SheetJS automatically detects name columns</div>
+            </div>
+
+            <div id="excelColumnControls" class="grid-2" style="display: none; margin-top: 0.75rem;">
+              <div class="field-group" style="margin: 0;">
+                <label class="field-label" for="columnDropdown">Name Column</label>
+                <select id="columnDropdown" class="input-select"></select>
+              </div>
+              <div style="display: flex; align-items: flex-end; padding-bottom: 0.4rem;">
+                <label class="checkbox-item">
+                  <input type="checkbox" id="headerRowCheckbox" checked />
+                  <span>Row 1 is header</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Manual Entry Textarea -->
+          <div id="tabManualContent" style="display: none;">
+            <div class="field-group">
+              <div class="field-label">
+                <span>Enter Names (One per line)</span>
+                <span class="field-hint" id="manualCounter">0 names</span>
+              </div>
+              <textarea id="manualTextarea" class="input-textarea" placeholder="Priya Nair&#10;Alexander Wright&#10;Sofia Rodriguez&#10;Michael Chen..."></textarea>
+            </div>
+          </div>
+
+          <!-- Names Chips Preview Tray -->
+          <div class="names-summary-box">
+            <div style="display: flex; justify-content: space-between; font-size: 0.76rem; font-weight: 700;">
+              <span id="totalNamesBadge">👥 0 Recipients Loaded</span>
+              <span class="field-hint">Auto-trimmed</span>
+            </div>
+            <div class="chips-flex" id="namesChipTray">
+              <span style="font-size: 0.73rem; color: #94a3b8; font-style: italic;">No names loaded yet.</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 3: TYPOGRAPHY & PLACEMENT -->
+        <section class="step-box" id="stepBoxStyling">
+          <div class="step-head">
+            <div class="step-badge">3</div>
+            <div class="step-title-block">
+              <h2 class="step-heading">Typography & Placement</h2>
+              <p class="step-desc">Pick from all font families or add any Google Font</p>
+            </div>
+          </div>
+
+          <!-- Custom Searchable Font Picker Dropdown -->
+          <div class="field-group font-dropdown-container" id="fontDropdownContainer">
+            <div class="field-label">
+              <label for="fontSearchInput">Select Font Family</label>
+              <span class="field-hint" id="fontCategoryLabel">Serif</span>
+            </div>
+
+            <!-- Trigger Button -->
+            <div class="font-picker-trigger" id="fontPickerTrigger" tabindex="0" role="combobox" aria-expanded="false" aria-haspopup="listbox">
+              <div class="font-trigger-info">
+                <span class="font-trigger-name" id="fontTriggerName">Playfair Display</span>
+                <span class="font-trigger-preview" id="fontTriggerPreview" style="font-family: 'Playfair Display', serif;">Certificate Sample</span>
+              </div>
+              <span class="font-trigger-arrow" id="fontTriggerArrow">▾</span>
+            </div>
+
+            <!-- Floating Custom Dropdown Menu (Always opens downward, max-height, searchable) -->
+            <div class="font-picker-menu" id="fontPickerMenu" role="listbox">
+              <!-- Search Bar Header -->
+              <div class="font-search-header">
+                <div class="font-search-input-wrap">
+                  <span class="search-icon">🔍</span>
+                  <input type="text" id="fontSearchInput" class="font-search-input" placeholder="Search 40+ fonts or type name..." autocomplete="off" />
+                  <button type="button" id="fontSearchClearBtn" class="font-search-clear" style="display: none;" title="Clear search">✕</button>
+                </div>
+              </div>
+
+              <!-- Scrollable Font List with Live Typeface Previews -->
+              <div class="font-list-scroll" id="fontListScroll"></div>
+
+              <!-- Quick Google Font On-the-fly Loader -->
+              <div class="font-custom-loader-row" id="fontCustomLoaderRow" style="display: none;">
+                <span style="font-size: 0.74rem; color: #64748b;" id="fontCustomLoaderPrompt">Not in list?</span>
+                <button type="button" id="btnLoadTypedFont" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.65rem; font-size: 0.74rem;">
+                  + Load from Google Fonts
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <!-- Font Weight -->
+            <div class="field-group">
+              <label class="field-label" for="weightSelect">Font Weight</label>
+              <select id="weightSelect" class="input-select"></select>
+            </div>
+
+            <!-- Alignment -->
+            <div class="field-group">
+              <label class="field-label">Alignment</label>
+              <div class="segmented-group" role="radiogroup">
+                <div class="segmented-btn">
+                  <input type="radio" name="textAlign" id="alignL" value="left" />
+                  <label for="alignL">Left</label>
+                </div>
+                <div class="segmented-btn">
+                  <input type="radio" name="textAlign" id="alignC" value="center" checked />
+                  <label for="alignC">Center</label>
+                </div>
+                <div class="segmented-btn">
+                  <input type="radio" name="textAlign" id="alignR" value="right" />
+                  <label for="alignR">Right</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Font Size Slider & Number -->
+          <div class="field-group">
+            <div class="field-label">
+              <label for="fontSizeRange">Font Size</label>
+              <div style="display: flex; align-items: center; gap: 0.3rem;">
+                <input type="number" id="fontSizeNum" class="input-text" style="width: 70px; text-align: center; padding: 0.2rem 0.4rem; font-size: 0.78rem;" min="10" max="400" value="64" />
+                <span class="field-hint">px</span>
+              </div>
+            </div>
+            <input type="range" id="fontSizeRange" class="input-text" min="14" max="260" value="64" style="padding: 0; cursor: pointer;" />
+          </div>
+
+          <!-- Professional Figma/Canva-Grade Color Studio -->
+          <div class="field-group">
+            <div class="field-label">
+              <span>Font Color Studio</span>
+              <span class="field-hint">Any color, tint, shade or hex</span>
+            </div>
+
+            <!-- Embedded 2D Color Picker -->
+            <div class="pro-color-picker" id="proColorPicker">
+              <!-- 2D Saturation / Value Box -->
+              <div class="color-sv-box" id="colorSvBox" tabindex="0" role="slider" aria-label="Saturation and Brightness">
+                <div class="color-sv-white"></div>
+                <div class="color-sv-black"></div>
+                <div class="color-sv-handle" id="colorSvHandle"></div>
+              </div>
+
+              <!-- Rainbow Hue Slider -->
+              <div class="color-hue-bar" id="colorHueBar" tabindex="0" role="slider" aria-label="Hue Spectrum">
+                <div class="color-hue-handle" id="colorHueHandle"></div>
+              </div>
+
+              <!-- Values, Preview & Eyedropper Row -->
+              <div class="color-inputs-bar">
+                <div class="color-preview-swatch" id="colorPreviewSwatch" title="Active Font Color"></div>
+                
+                <button type="button" id="btnEyeDropper" class="btn btn-secondary btn-sm" title="Pick any color directly from your template (Chrome/Edge)">
+                  💧 Eyedropper
+                </button>
+
+                <div class="color-input-field">
+                  <span class="color-field-tag">HEX</span>
+                  <input type="text" id="pickerHexInput" class="input-text color-field-val" value="#0F172A" maxlength="7" />
+                </div>
+
+                <div class="color-rgb-group" title="Red, Green, Blue values">
+                  <div class="rgb-field"><span class="rgb-tag">R</span><input type="number" id="pickerRInput" class="input-text rgb-num" min="0" max="255" value="15" /></div>
+                  <div class="rgb-field"><span class="rgb-tag">G</span><input type="number" id="pickerGInput" class="input-text rgb-num" min="0" max="255" value="23" /></div>
+                  <div class="rgb-field"><span class="rgb-tag">B</span><input type="number" id="pickerBInput" class="input-text rgb-num" min="0" max="255" value="42" /></div>
+                </div>
+              </div>
+
+              <!-- Quick Classic Swatches -->
+              <div class="color-quick-presets">
+                <span class="preset-label">Favorites:</span>
+                <div class="preset-dots-mini">
+                  <button type="button" class="mini-dot" style="background: #000000;" data-color="#000000" title="Pure Black (#000000)"></button>
+                  <button type="button" class="mini-dot" style="background: #ffffff; border: 1px solid #cbd5e1;" data-color="#ffffff" title="Pure White (#FFFFFF)"></button>
+                  <button type="button" class="mini-dot" style="background: #d4af37;" data-color="#d4af37" title="Gold (#D4AF37)"></button>
+                  <button type="button" class="mini-dot" style="background: #1e3a8a;" data-color="#1e3a8a" title="Navy Blue (#1E3A8A)"></button>
+                  <button type="button" class="mini-dot" style="background: #881337;" data-color="#881337" title="Burgundy (#881337)"></button>
+                  <button type="button" class="mini-dot" style="background: #047857;" data-color="#047857" title="Emerald (#047857)"></button>
+                  <button type="button" class="mini-dot" style="background: #4f46e5;" data-color="#4f46e5" title="Indigo (#4F46E5)"></button>
+                  <button type="button" class="mini-dot" style="background: #dc2626;" data-color="#dc2626" title="Crimson (#DC2626)"></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Letter Case -->
+          <div class="field-group">
+            <label class="field-label">Letter Case</label>
+            <div class="segmented-group" role="radiogroup">
+              <div class="segmented-btn">
+                <input type="radio" name="letterCase" id="caseTyped" value="asTyped" />
+                <label for="caseTyped">As typed</label>
+              </div>
+              <div class="segmented-btn">
+                <input type="radio" name="letterCase" id="caseTitle" value="title" checked />
+                <label for="caseTitle">Title Case</label>
+              </div>
+              <div class="segmented-btn">
+                <input type="radio" name="letterCase" id="caseUpper" value="upper" />
+                <label for="caseUpper">UPPERCASE</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shrink Long Names to Fit -->
+          <div class="field-group">
+            <label class="checkbox-item">
+              <input type="checkbox" id="shrinkCheckbox" checked />
+              <span><strong>Shrink long names to fit</strong> (prevents text overflow)</span>
+            </label>
+            <div id="maxWidthSliderBox" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+              <span class="field-hint" style="min-width: 90px;">Max width:</span>
+              <input type="range" id="maxWidthRange" class="input-text" min="30" max="95" value="75" style="padding:0; cursor: pointer;" />
+              <span id="maxWidthLabel" class="field-hint" style="font-weight: 700; min-width: 35px;">75%</span>
+            </div>
+          </div>
+
+          <!-- Position & Nudge Controls (X: Left/Right, Y: Up/Down) -->
+          <div class="position-control-card">
+            <div class="position-control-head">
+              <div class="position-control-title">
+                <span class="title-icon">📍</span>
+                <div>
+                  <strong>Text Placement</strong>
+                  <span class="axis-guide-badge">Y = Up / Down &bull; X = Left / Right</span>
+                </div>
+              </div>
+              <div class="position-center-actions">
+                <button id="snapCenterXBtn" class="btn btn-secondary btn-xs" type="button" title="Center Horizontally (X: 50%)">
+                  ↔️ Center X
+                </button>
+                <button id="snapCenterYBtn" class="btn btn-secondary btn-xs" type="button" title="Center Vertically (Y: 50%)">
+                  ↕️ Center Y
+                </button>
+                <button id="snapCenterBtn" class="btn btn-secondary btn-xs" type="button" title="Center Both X and Y">
+                  🎯 Center
+                </button>
+              </div>
+            </div>
+
+            <!-- Coordinate inputs & sliders grid -->
+            <div class="position-axes-grid">
+              <!-- Y Axis (Up & Down) -->
+              <div class="axis-row y-axis-row">
+                <div class="axis-header">
+                  <span class="axis-badge axis-y-badge">↕️ Y-Axis (Up / Down)</span>
+                  <div class="axis-input-wrap">
+                    <input type="number" id="posYInput" class="input-text axis-num-input" min="0" max="100" step="0.5" value="50.0" />
+                    <span class="axis-unit">%</span>
+                  </div>
+                </div>
+                <div class="axis-slider-row">
+                  <span class="axis-label-sub">Top (0%)</span>
+                  <input type="range" id="posYRange" class="axis-slider" min="0" max="100" step="0.1" value="50.0" />
+                  <span class="axis-label-sub">Bottom (100%)</span>
+                </div>
+              </div>
+
+              <!-- X Axis (Left & Right) -->
+              <div class="axis-row x-axis-row">
+                <div class="axis-header">
+                  <span class="axis-badge axis-x-badge">↔️ X-Axis (Left / Right)</span>
+                  <div class="axis-input-wrap">
+                    <input type="number" id="posXInput" class="input-text axis-num-input" min="0" max="100" step="0.5" value="50.0" />
+                    <span class="axis-unit">%</span>
+                  </div>
+                </div>
+                <div class="axis-slider-row">
+                  <span class="axis-label-sub">Left (0%)</span>
+                  <input type="range" id="posXRange" class="axis-slider" min="0" max="100" step="0.1" value="50.0" />
+                  <span class="axis-label-sub">Right (100%)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Directional Nudge Pad & Step Toggle -->
+            <div class="nudge-control-section">
+              <div class="nudge-pad-wrapper">
+                <div class="nudge-pad">
+                  <button type="button" id="nudgeUpBtn" class="nudge-btn nudge-up" title="Move Up (Y -)">
+                    <span class="nudge-arrow">▲</span>
+                    <span class="nudge-text">Up</span>
+                  </button>
+                  <div class="nudge-pad-middle">
+                    <button type="button" id="nudgeLeftBtn" class="nudge-btn nudge-left" title="Move Left (X -)">
+                      <span class="nudge-arrow">◀</span>
+                      <span class="nudge-text">Left</span>
+                    </button>
+                    <button type="button" id="nudgeCenterBtn" class="nudge-btn nudge-center" title="Snap Center">
+                      <span>🎯</span>
+                    </button>
+                    <button type="button" id="nudgeRightBtn" class="nudge-btn nudge-right" title="Move Right (X +)">
+                      <span class="nudge-arrow">▶</span>
+                      <span class="nudge-text">Right</span>
+                    </button>
+                  </div>
+                  <button type="button" id="nudgeDownBtn" class="nudge-btn nudge-down" title="Move Down (Y +)">
+                    <span class="nudge-arrow">▼</span>
+                    <span class="nudge-text">Down</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="nudge-meta-box">
+                <div class="nudge-step-selector">
+                  <span class="field-hint" style="font-weight: 600;">Nudge Step:</span>
+                  <div class="step-chips" id="nudgeStepChips">
+                    <button type="button" class="step-chip active" data-step="0.5">0.5%</button>
+                    <button type="button" class="step-chip" data-step="1.0">1.0%</button>
+                    <button type="button" class="step-chip" data-step="5.0">5.0%</button>
+                  </div>
+                </div>
+                <div class="nudge-help-hint">
+                  💡 Drag on the certificate or use <strong>Arrow Keys (↑ ↓ ← →)</strong> to nudge
+                </div>
+                <div class="coords-status-pill">
+                  Position: <span class="coords-val" id="coordsDisplay">X: 50.0% | Y: 50.0%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 4: EXPORT STUDIO -->
+        <section class="step-box" id="stepBoxExport">
+          <div class="step-head">
+            <div class="step-badge">4</div>
+            <div class="step-title-block">
+              <h2 class="step-heading">Export Studio</h2>
+              <p class="step-desc">Export high-resolution certificates in 1-click</p>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Output Format</label>
+            <div class="segmented-group" role="radiogroup">
+              <div class="segmented-btn">
+                <input type="radio" name="exportFormat" id="fmtPdf" value="pdf" checked />
+                <label for="fmtPdf">📄 PDF Document (.pdf)</label>
+              </div>
+              <div class="segmented-btn">
+                <input type="radio" name="exportFormat" id="fmtPng" value="png" />
+                <label for="fmtPng">🖼️ High-Res PNG (.png)</label>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.65rem; margin-top: 0.75rem;">
+            <button id="btnGenerateZip" class="btn btn-primary btn-lg" type="button">
+              📦 Generate & Download All (ZIP)
+            </button>
+            <button id="btnGenerateFolder" class="btn btn-secondary btn-sm" type="button" style="padding: 0.65rem;" title="Save directly to a local folder via File System API">
+              📁 Save directly to local folder
+            </button>
+          </div>
+
+          <!-- Progress Block -->
+          <div class="progress-container" id="progressContainer">
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700;">
+              <span id="progressLabel">Generating Certificates...</span>
+              <span id="progressPercentNum">0%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="progressFillBar"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 0.74rem; color: #64748b; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" id="progressCurrentFile">
+                Preparing...
+              </span>
+              <button id="btnCancelGen" class="btn btn-danger-ghost" type="button">Cancel</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Right Column: Interactive Studio Canvas Stage -->
+      <div class="preview-studio-stage">
+        <div class="studio-viewport-card">
+          
+          <!-- Viewport Toolbar -->
+          <div class="studio-toolbar">
+            <div style="font-size: 0.88rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; color: #0f172a;">
+              <button type="button" class="btn btn-secondary btn-sm mobile-back-btn" id="btnMobBackToControls">
+                ← Back to Steps
+              </button>
+              <span>👁️ Live Preview</span>
+              <span class="preview-drag-tip" style="font-size: 0.74rem; color: #4f46e5; font-weight: 600;">(Drag text to move)</span>
+            </div>
+
+            <!-- Recipient Cycler -->
+            <div class="student-switcher">
+              <button id="btnPrevRecipient" class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.5rem;" title="Previous recipient">◀</button>
+              <span id="recipientNavStatus" style="font-size: 0.76rem; font-weight: 700; min-width: 100px; text-align: center; color: #0f172a;">1 of 1</span>
+              <button id="btnNextRecipient" class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.5rem;" title="Next recipient">▶</button>
+            </div>
+          </div>
+
+          <!-- Viewport Stage (Clean Light Design Board) -->
+          <div class="canvas-screen-area" id="canvasScreenArea">
+            
+            <!-- Empty State Prompt -->
+            <div class="empty-canvas-prompt" id="emptyCanvasPrompt">
+              <div class="empty-upload-card" id="emptyUploadCard">
+                <input type="file" id="emptyFileInput" accept="image/png, image/jpeg, image/webp" />
+                <div style="font-size: 2.75rem; margin-bottom: 0.5rem;">🖼️</div>
+                <div style="font-size: 1.05rem; font-weight: 800; color: #0f172a;">Upload Your Certificate Template</div>
+                <div style="font-size: 0.78rem; color: #64748b; margin-top: 0.35rem;">
+                  Click or drag your Canva exported PNG / JPG here to begin
+                </div>
+              </div>
+            </div>
+
+            <!-- Canvas Stage (Shown when template is loaded) -->
+            <div class="canvas-stage-wrapper" id="canvasStageWrapper" style="display: none;">
+              <canvas id="previewCanvas"></canvas>
+            </div>
+
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.74rem; color: #64748b;">
+            <span>⚡ Offscreen canvas renders 100% full-resolution output</span>
+            <button id="btnOpenFullResTest" class="btn btn-secondary btn-sm" type="button" style="font-size: 0.74rem;">
+              🔍 Test High-Res in New Tab
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Offscreen Canvas for Full-Resolution Batch Render Engine -->
+  <canvas id="renderEngineCanvas" style="display: none;"></canvas>
+
+  <!-- Floating Mobile Quick Preview Action (visible only on mobile when in controls tab) -->
+  <div class="mobile-floating-preview-bar" id="mobileFloatingPreviewBar">
+    <button type="button" class="btn btn-primary btn-floating-preview" id="btnFloatingPreview">
+      <span>👁️ View Live Certificate</span>
+    </button>
+  </div>
+
+  <!-- Toast Tray -->
+  <div class="toast-tray" id="toastTray"></div>
+
+  <!-- Main ES Module Script -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
